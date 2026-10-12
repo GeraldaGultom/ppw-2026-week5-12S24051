@@ -1,6 +1,4 @@
-<div>
-    <!-- People find pleasure in different ways. I find it in keeping my mind clear. - Marcus Aurelius -->
-     <x-layout title="Daftar Kategori">
+<x-layout title="Daftar Kategori">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Daftar Kategori</h1>
         <a href="{{ route('kategori.create') }}" class="btn btn-del">+ Tambah Kategori</a>
@@ -49,4 +47,3 @@
 
     <div class="mt-3">{{ $kategoris->links() }}</div>
 </x-layout>
-</div>

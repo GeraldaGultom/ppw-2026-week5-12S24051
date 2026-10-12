@@ -1,5 +1,3 @@
-<div>
-    <!-- No surplus words or unnecessary actions. - Marcus Aurelius -->
 <x-layout title="Tambah Buku">
     <h1 class="h4 mb-3">Tambah Buku</h1>
 
@@ -17,4 +15,3 @@
         </div>
     </div>
 </x-layout>
-</div>

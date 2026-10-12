@@ -1,6 +1,4 @@
-<div>
-    <!-- It is not the man who has too little, but the man who craves more, that is poor. - Seneca -->
-     <x-layout title="Tambah Kategori">
+<x-layout title="Tambah Kategori">
     <h1 class="h4 mb-3">Tambah Kategori</h1>
 
     <div class="card shadow-sm">
@@ -17,4 +15,3 @@
         </div>
     </div>
 </x-layout>
-</div>

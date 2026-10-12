@@ -1,4 +1,3 @@
-<div>
 <x-layout title="Detail Buku">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Detail Buku</h1>
@@ -37,4 +36,3 @@
         </div>
     </div>
 </x-layout>
-</div>

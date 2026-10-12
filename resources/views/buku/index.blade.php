@@ -1,5 +1,3 @@
-<div>
-    <!-- Let all your things have their places; let each part of your business have its time. - Benjamin Franklin -->
 <x-layout title="Daftar Buku">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Daftar Buku</h1>
@@ -59,4 +57,3 @@
 
     <div class="mt-3">{{ $bukus->links() }}</div>
 </x-layout>
-</div>

@@ -1,6 +1,4 @@
-<div>
-    <!-- Be present above all else. - Naval Ravikant -->
-     <x-layout title="Detail Kategori">
+ <x-layout title="Detail Kategori">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Kategori: {{ $kategori->nama_kategori }}</h1>
         <a href="{{ route('kategori.index') }}" class="btn btn-outline-secondary">&larr; Kembali</a>
@@ -47,4 +45,3 @@
         <a href="{{ route('kategori.edit', $kategori) }}" class="btn btn-del">Ubah Kategori</a>
     </div>
 </x-layout>
-</div>

@@ -1,4 +1,3 @@
-<div>
 <x-layout title="Ubah Buku">
     <h1 class="h4 mb-3">Ubah Buku</h1>
 
@@ -17,4 +16,3 @@
         </div>
     </div>
 </x-layout>
-</div>
