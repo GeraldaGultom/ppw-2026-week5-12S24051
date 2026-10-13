@@ -1,58 +1,231 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIPUS-Del — Sistem Informasi Perpustakaan Kampus Del
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Tugas Mandiri Minggu 5, mata kuliah **Pemrograman dan Pengujian Aplikasi Web (12S3101)**,
+Institut Teknologi Del.
 
-## About Laravel
+| | |
+|---|---|
+| **Pengembang** | Geralda Natali Gultom |
+| **NIM** | 12S24051 |
+| **Program Studi** | S1 Sistem Informasi |
+| **Dosen Pengampu** | Chandro Pardede, S.Kom., M.Sc. |
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Deskripsi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+SIPUS-Del adalah aplikasi web pengelolaan koleksi perpustakaan kampus yang dibangun dengan pola
+arsitektur **Model-View-Controller (MVC)** menggunakan Laravel. Aplikasi mengelola dua entitas
+yang saling berelasi, yaitu **Kategori** dan **Buku** (satu kategori memiliki banyak buku), lengkap
+dengan operasi CRUD, validasi sisi server, pagination, dan pesan umpan balik.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Teknologi
 
-## Learning Laravel
+- Laravel 13.x (PHP 8.3 atau lebih baru; dikembangkan pada PHP 8.5.11)
+- SQLite sebagai basis data (satu berkas, tanpa instalasi tambahan)
+- Blade Component Engine (`<x-layout>`) dan Bootstrap 5.3.3 (CDN)
+- Eloquent ORM, Migration, Factory, Seeder, dan Faker (locale `id_ID`)
+- Git dan Conventional Commits
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Fitur
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- CRUD lengkap untuk **Buku** dan **Kategori** (7 aksi RESTful per entitas)
+- Validasi server-side yang ketat dengan pesan berbahasa Indonesia
+- Pagination bergaya Bootstrap, flash message, dan tampilan kosong yang informatif
+- Pencegahan penghapusan kategori yang masih memiliki buku
+- Eager Loading (`with()` dan `withCount()`) untuk mencegah N+1 query
+- Tema warna Del Royal Purple (`#4C1D95`), responsif di layar ponsel hingga desktop
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Arsitektur MVC
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```mermaid
+flowchart LR
+    B[Browser] --> I[public/index.php]
+    I --> R[routes/web.php]
+    R --> C[Controller<br/>BukuController / KategoriController]
+    C <--> M[Model Eloquent<br/>Buku / Kategori]
+    M <--> D[(SQLite)]
+    C --> V[View Blade<br/>x-layout, buku/*, kategori/*]
+    V --> B
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+| Lapisan | Tanggung jawab | Lokasi |
+|---|---|---|
+| **Model** | Aturan data, relasi, dan akses basis data | `app/Models/Buku.php`, `Kategori.php` |
+| **View** | Tampilan HTML (Blade), tanpa logika bisnis | `resources/views/` |
+| **Controller** | Menerima request, validasi, memanggil Model, memilih View | `app/Http/Controllers/` |
+| **Route** | Memetakan URL ke Controller | `routes/web.php` |
 
-## Contributing
+Controller sengaja dibuat tipis: tidak ada HTML dan tidak ada SQL mentah di dalamnya.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Skema Basis Data
 
-## Code of Conduct
+```mermaid
+erDiagram
+    KATEGORIS ||--o{ BUKUS : "memiliki banyak"
+    KATEGORIS {
+        bigint id PK
+        string kode_kategori UK
+        string nama_kategori
+        timestamp created_at
+        timestamp updated_at
+    }
+    BUKUS {
+        bigint id PK
+        string isbn UK
+        string judul "indexed"
+        string penulis
+        string penerbit
+        smallint tahun_terbit
+        bigint kategori_id FK
+        int stok
+        text sinopsis "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Keputusan perancangan skema:
 
-## Security Vulnerabilities
+| Kolom | Pilihan | Alasan |
+|---|---|---|
+| `isbn` | `string(17)`, `unique` | ISBN-13 berhubung tanda hubung maksimal 17 karakter; tidak boleh ada duplikat |
+| `judul` | `string(200)`, `index` | Kolom sering dicari, index mempercepat pencarian |
+| `tahun_terbit` | `unsignedSmallInteger` | Tahun hanya butuh bilangan kecil positif |
+| `kategori_id` | `foreignId()->constrained()->restrictOnDelete()` | Kategori yang masih punya buku tidak boleh dihapus sehingga data tidak hilang diam-diam |
+| `stok` | `unsignedInteger`, default `0` | Stok tidak boleh negatif |
+| `sinopsis` | `text`, `nullable` | Teks panjang yang opsional |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Relasi Eloquent: `Kategori::bukus()` bertipe `hasMany` dan `Buku::kategori()` bertipe `belongsTo`.
+Kedua model memakai `$fillable` untuk melindungi dari mass assignment.
 
-## License
+![Skema tabel bukus](docs/screenshots/skema-bukus.png)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Routing RESTful
+
+Didaftarkan dengan `Route::resource()` dan memakai Implicit Route Model Binding.
+
+| Metode | URI | Nama rute | Aksi |
+|---|---|---|---|
+| GET | `/buku` | `buku.index` | Daftar buku |
+| GET | `/buku/create` | `buku.create` | Form tambah |
+| POST | `/buku` | `buku.store` | Simpan buku baru |
+| GET | `/buku/{buku}` | `buku.show` | Detail buku |
+| GET | `/buku/{buku}/edit` | `buku.edit` | Form ubah |
+| PUT/PATCH | `/buku/{buku}` | `buku.update` | Simpan perubahan |
+| DELETE | `/buku/{buku}` | `buku.destroy` | Hapus buku |
+| GET | `/kategori` | `kategori.index` | Daftar kategori |
+| GET | `/kategori/create` | `kategori.create` | Form tambah |
+| POST | `/kategori` | `kategori.store` | Simpan kategori baru |
+| GET | `/kategori/{kategori}` | `kategori.show` | Detail kategori dan bukunya |
+| GET | `/kategori/{kategori}/edit` | `kategori.edit` | Form ubah |
+| PUT/PATCH | `/kategori/{kategori}` | `kategori.update` | Simpan perubahan |
+| DELETE | `/kategori/{kategori}` | `kategori.destroy` | Hapus kategori |
+
+Rute `/` dialihkan ke `buku.index`.
+
+![Daftar rute](docs/screenshots/route-list.png)
+
+## Validasi Input (Server-Side)
+
+Seluruh validasi dijalankan dengan `$request->validate()` di Controller. Atribut `novalidate`
+pada form sengaja dipakai agar validasi server terlihat bekerja.
+
+**Buku**
+
+| Field | Aturan |
+|---|---|
+| `isbn` | wajib, format 10-17 karakter (angka, X, tanda hubung), **unik** (mengabaikan baris sendiri saat ubah) |
+| `judul` | wajib, **minimal 5** dan maksimal 200 karakter |
+| `penulis` | wajib, maksimal 150 karakter |
+| `penerbit` | wajib, maksimal 100 karakter |
+| `tahun_terbit` | wajib, bilangan bulat 1900 sampai tahun berjalan |
+| `kategori_id` | wajib, harus ada di tabel `kategoris` |
+| `stok` | wajib, bilangan bulat, **minimal 0** |
+| `sinopsis` | opsional |
+
+**Kategori:** `kode_kategori` wajib, maksimal 10 karakter, unik; `nama_kategori` wajib, 3-100 karakter.
+
+![Form dengan pesan validasi](docs/screenshots/form-validasi-buku.png)
+
+## Keamanan
+
+| Ancaman | Perlindungan |
+|---|---|
+| CSRF | Direktif `@csrf` pada semua form; request tanpa token ditolak dengan HTTP 419 |
+| XSS | Seluruh output memakai `{{ }}` yang otomatis meng-escape HTML |
+| SQL Injection | Hanya memakai Eloquent / Query Builder (prepared statement), tanpa kueri mentah |
+| Mass assignment | `$fillable` pada model dan hanya data hasil `validate()` yang disimpan |
+| Method spoofing | `@method('PUT')` dan `@method('DELETE')` pada form |
+| Integritas data | Foreign key `restrictOnDelete()` dan pengecekan di Controller sebelum menghapus kategori |
+| Kredensial | `.env` dan `vendor/` tidak ikut repositori; disediakan `.env.example` |
+
+![Penghapusan kategori ditolak](docs/screenshots/hapus-kategori-ditolak.png)
+
+## Optimasi Kueri: Bukti Eager Loading
+
+Audit kueri dilakukan dengan `DB::listen()` di `AppServiceProvider` (aktif hanya saat `APP_DEBUG=true`)
+yang mencatat setiap kueri ke `storage/logs/laravel.log`. Pengukuran pada halaman `/buku` (halaman 1,
+10 buku per halaman):
+
+| | Tanpa `with()` | Dengan `with('kategori')` |
+|---|---|---|
+| Kueri ke tabel `kategoris` | 10 | **1** |
+| Total kueri data (count + bukus + kategoris) | 12 | **3** |
+
+Tanpa Eager Loading, setiap baris memicu satu kueri tambahan untuk mengambil kategorinya (**N+1 problem**).
+Dengan `Buku::with('kategori')`, kategori seluruh buku diambil dalam satu kueri `WHERE id IN (...)`.
+Halaman `/kategori` memakai `withCount('bukus')` sehingga jumlah buku per kategori dihitung dalam satu kueri.
+
+Berkas log mentah: [`docs/audit-sql-sebelum.txt`](docs/audit-sql-sebelum.txt),
+[`docs/audit-sql-sesudah.txt`](docs/audit-sql-sesudah.txt), dan
+[`docs/audit-sql-kategori.txt`](docs/audit-sql-kategori.txt).
+
+![Audit sebelum](docs/screenshots/audit-sebelum.png)
+![Audit sesudah](docs/screenshots/audit-sesudah.png)
+
+## Mock Data (Factory dan Seeder)
+
+`php artisan migrate:fresh --seed` menghasilkan **7 kategori** (Pemrograman, Basis Data,
+Jaringan Komputer, Kecerdasan Buatan, Sistem Informasi, Keamanan Informasi, Manajemen Proyek)
+dan **24 buku** yang dibuat `BukuFactory` dengan Faker (locale `id_ID`). Judul dan sinopsis
+mengikuti kategori buku sehingga data tampak realistis.
+
+![Hasil seeding](docs/screenshots/seed-dan-tinker.png)
+
+## Cara Menjalankan
+
+Prasyarat: PHP 8.3 atau lebih baru (ekstensi `pdo_sqlite`, `mbstring`, `openssl`, `curl`,
+`fileinfo`, `xml`) dan Composer 2.x. Node.js tidak diperlukan karena Bootstrap dimuat lewat CDN.
+
+```bash
+git clone https://github.com/GeraldaGultom/ppw-2026-week5-12S24051.git
+cd ppw-2026-week5-12S24051
+composer install
+copy .env.example .env             # Linux/macOS: cp .env.example .env
+php artisan key:generate
+type nul > database\database.sqlite   # Linux/macOS: touch database/database.sqlite
+php artisan migrate --seed
+php artisan serve
+```
+
+Buka `http://127.0.0.1:8000`.
+
+## Tampilan
+
+![Daftar buku](docs/screenshots/daftar-buku.png)
+![Daftar kategori](docs/screenshots/daftar-kategori.png)
+
+## Riwayat Commit
+
+Mengikuti konvensi Conventional Commits. Lima commit utama sesuai modul:
+`feat(migration)`, `feat(model)`, `feat(controller)`, `feat(views)`, dan `perf(eager-loading)`.
+
+```
+(TEMPEL OUTPUT `git log --oneline` DI SINI)
+```
+
+## Catatan Versi
+
+Modul menyebut Laravel 11.x. Proyek ini memakai **Laravel 13.x** karena seluruh rilis Laravel 11
+ditolak Composer akibat advisory keamanan yang terdaftar (Laravel 11 sudah tidak menerima perbaikan
+keamanan), sedangkan Laravel 13 mendukung PHP 8.3 sampai 8.5. Fitur yang dinilai (MVC, Eloquent,
+Route::resource, validasi, Blade Component) tidak berbeda.
