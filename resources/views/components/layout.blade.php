@@ -49,8 +49,29 @@
                         <a class="nav-link {{ request()->routeIs('kategori.*') ? 'active' : '' }}"
                            href="{{ route('kategori.index') }}">Kategori</a>
                     </li>
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('peminjamans.*') ? 'active' : '' }}"
+                               href="{{ route('peminjamans.index') }}">Sirkulasi</a>
+                        </li>
+                    @endauth
                 </ul>
-                <span class="navbar-text small">Perpustakaan Kampus Del</span>
+
+                <div class="d-flex align-items-center gap-2">
+                    @auth
+                        <span class="navbar-text small text-white">
+                            {{ auth()->user()->name }}
+                            <small class="opacity-75 d-block d-lg-inline">(login: {{ session('login_timestamp') }})</small>
+                        </span>
+                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            @csrf
+                            <button class="btn btn-outline-light btn-sm">Logout</button>
+                        </form>
+                    @else
+                        <span class="navbar-text small me-2">Perpustakaan Kampus Del</span>
+                        <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Login Pustakawan</a>
+                    @endauth
+                </div>
             </div>
         </div>
     </nav>
