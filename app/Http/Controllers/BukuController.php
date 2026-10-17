@@ -6,31 +6,50 @@ use App\Models\Buku;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class BukuController extends Controller
 {
-    public function index()
-    {
-$bukus = Buku::with('kategori')->latest()->paginate(10);
-        return view('buku.index', compact('bukus'));
+public function index(Request $request)
+{
+    // State sesi: simpan kata kunci pencarian terakhir
+    if ($request->filled('search')) {
+        session(['last_search' => $request->input('search')]);
     }
 
-    public function create()
-    {
-        $kategoris = Kategori::orderBy('nama_kategori')->get();
-        return view('buku.create', compact('kategoris'));
-    }
+    $bukus = Buku::with('kategori')              // eager load: cegah N+1
+        ->withCount('peminjamans')               // jumlah peminjaman via satu subquery
+        ->when($request->filled('search'), function ($query) use ($request) {
+            $s = $request->input('search');
+            // Dikelompokkan agar OR tidak merusak filter kategori
+            $query->where(function ($q) use ($s) {
+                $q->where('judul', 'like', "%{$s}%")
+                  ->orWhere('penulis', 'like', "%{$s}%")
+                  ->orWhere('isbn', 'like', "%{$s}%");
+            });
+        })
+        ->when($request->filled('kategori_id'), function ($query) use ($request) {
+            $query->where('kategori_id', $request->input('kategori_id'));
+        })
+        ->orderBy('judul')
+        ->paginate(10)
+        ->withQueryString();
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate($this->rules());
+    // Statistik via Fluent Query Builder
+    $stats = [
+        'total_judul'        => DB::table('bukus')->count(),
+        'total_stok'         => (int) DB::table('bukus')->sum('stok'),
+        'sedang_dipinjam'    => DB::table('peminjamans')->where('status', 'dipinjam')->count(),
+        'total_dikembalikan' => DB::table('peminjamans')->where('status', 'dikembalikan')->count(),
+    ];
 
-        Buku::create($validated);
-
-        return redirect()->route('buku.index')
-            ->with('success', 'Buku berhasil ditambahkan!');
-    }
-
+    return view('buku.index', [
+        'bukus'      => $bukus,
+        'stats'      => $stats,
+        'kategoris'  => Kategori::orderBy('nama_kategori')->get(),
+        'lastSearch' => session('last_search'),
+    ]);
+}
     public function show(Buku $buku)
     {
         $buku->load('kategori');
