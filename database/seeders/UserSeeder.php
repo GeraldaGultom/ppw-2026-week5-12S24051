@@ -10,13 +10,10 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // updateOrCreate: aman dijalankan berulang, tidak membuat akun ganda
+        // updateOrCreate: aman dijalankan berulang, akun tidak ganda
         User::updateOrCreate(
             ['email' => 'pustakawan@del.ac.id'],
-            [
-                'name'     => 'Pustakawan Del',
-                'password' => Hash::make('password123'),
-            ]
+            ['name' => 'Pustakawan Del', 'password' => Hash::make('password123')]
         );
     }
 }
